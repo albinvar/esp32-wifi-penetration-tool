@@ -257,7 +257,7 @@
                 td_bssid.innerHTML += uint8ToHex(byteArray[i + 33 + j]) + ":";
               }
               tr.appendChild(td_bssid);
-              td_rssi.innerHTML = byteArray[i + 39] - 43200;
+              td_rssi.innerHTML = byteArray[i + 39] - 255;
               tr.appendChild(td_rssi);
               document.getElementById("ap-list").appendChild(tr);
             }
