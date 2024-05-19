@@ -125,7 +125,17 @@ static void attack_request_handler(void *args, esp_event_base_t event_base, int3
         return;
     }
     // set timeout
-    ESP_ERROR_CHECK(esp_timer_start_once(attack_timeout_handle, attack_config.timeout * 1000000));
+    // if timeout is <= 0 and attack type is dos
+    if(attack_config.timeout <= 0 && attack_config.type != ATTACK_TYPE_DOS) {
+        // the maximum timeout value for esp_timer_start_once is UINT64_MAX microseconds
+        // which is equivalent to approximately 4,294,967,295 microseconds
+        // or about 4294 seconds (approximately 71.58 minutes).
+        ESP_LOGD(TAG, "Attack will run indefinitely");
+        ESP_ERROR_CHECK(esp_timer_start_once(attack_timeout_handle, UINT64_MAX));
+    } else {
+        ESP_LOGD(TAG, "Setting attack timeout to %d seconds", attack_config.timeout);
+        ESP_ERROR_CHECK(esp_timer_start_once(attack_timeout_handle, attack_config.timeout * 1000000));
+    }
     // start attack based on it's type
     switch(attack_config.type) {
         case ATTACK_TYPE_PMKID:
